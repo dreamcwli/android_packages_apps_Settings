@@ -97,6 +97,7 @@ public class DevelopmentSettings extends PreferenceFragment
     private static final String BUGREPORT = "bugreport";
     private static final String BUGREPORT_IN_POWER_KEY = "bugreport_in_power";
     private static final String OPENGL_TRACES_PROPERTY = "debug.egl.trace";
+    private static final String SYSTEM_BAR_UI_PROPERTY = "persist.sys.ui.sysbar";
 
     private static final String DEBUG_APP_KEY = "debug_app";
     private static final String WAIT_FOR_DEBUGGER_KEY = "wait_for_debugger";
@@ -120,14 +121,12 @@ public class DevelopmentSettings extends PreferenceFragment
     private static final String OVERLAY_DISPLAY_DEVICES_KEY = "overlay_display_devices";
     private static final String DEBUG_DEBUGGING_CATEGORY_KEY = "debug_debugging_category";
     private static final String OPENGL_TRACES_KEY = "enable_opengl_traces";
-
     private static final String ENABLE_TRACES_KEY = "enable_traces";
-
     private static final String IMMEDIATELY_DESTROY_ACTIVITIES_KEY
             = "immediately_destroy_activities";
     private static final String APP_PROCESS_LIMIT_KEY = "app_process_limit";
-
     private static final String SHOW_ALL_ANRS_KEY = "show_all_anrs";
+    private static final String USE_SYSTEM_BAR_KEY = "use_system_bar";
 
     private static final String TAG_CONFIRM_ENFORCE = "confirm_enforce";
 
@@ -181,6 +180,8 @@ public class DevelopmentSettings extends PreferenceFragment
     private ListPreference mAppProcessLimit;
 
     private CheckBoxPreference mShowAllANRs;
+
+    private CheckBoxPreference mUseSystemBar;
 
     private final ArrayList<Preference> mAllPrefs = new ArrayList<Preference>();
     private final ArrayList<CheckBoxPreference> mResetCbPrefs
@@ -282,6 +283,8 @@ public class DevelopmentSettings extends PreferenceFragment
             mAllPrefs.add(hdcpChecking);
         }
         removeHdcpOptionsForProduction();
+
+        mUseSystemBar = findAndInitCheckboxPref(USE_SYSTEM_BAR_KEY);
     }
 
     private CheckBoxPreference findAndInitCheckboxPref(String key) {
@@ -421,6 +424,7 @@ public class DevelopmentSettings extends PreferenceFragment
         updateShowAllANRsOptions();
         updateVerifyAppsOverUsbOptions();
         updateBugreportOptions();
+        updateUseSystemBarOptions();
     }
 
     private void resetDangerousOptions() {
@@ -1068,6 +1072,8 @@ public class DevelopmentSettings extends PreferenceFragment
             writeShowHwOverdrawOptions();
         } else if (preference == mDebugLayout) {
             writeDebugLayoutOptions();
+        } else if (preference == mUseSystemBar) {
+            writeUseSystemBarOptions();
         }
 
         return false;
@@ -1251,5 +1257,14 @@ public class DevelopmentSettings extends PreferenceFragment
         } catch (RemoteException e) {
             throw new RuntimeException("Problem talking with PackageManager", e);
         }
+    }
+
+    private void updateUseSystemBarOptions() {
+        updateCheckBox(mUseSystemBar, SystemProperties.getBoolean(SYSTEM_BAR_UI_PROPERTY, false));
+    }
+
+    private void writeUseSystemBarOptions() {
+        SystemProperties.set(SYSTEM_BAR_UI_PROPERTY, mUseSystemBar.isChecked() ? "true" : "false");
+        pokeSystemProperties();
     }
 }
