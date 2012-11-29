@@ -45,6 +45,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import android.util.Log;
+
 public class StorageVolumePreferenceCategory extends PreferenceCategory {
     public static final String KEY_CACHE = "cache";
 
@@ -78,6 +80,8 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     private String mUsbFunction;
 
     private long mTotalSize;
+
+    private boolean mUsbStorage;
 
     private static final int MSG_UI_UPDATE_APPROXIMATE = 1;
     private static final int MSG_UI_UPDATE_DETAILS = 2;
@@ -128,6 +132,15 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         setTitle(volume != null ? volume.getDescription(context)
                 : context.getText(R.string.internal_storage));
+
+        final Resources system = mResources.getSystem();
+        final int id = system.getIdentifier("storage_usb", "string", "android");
+        if (id != 0 && volume != null
+                && volume.getDescription(context).equals(system.getString(id))) {
+            mUsbStorage = true;
+        } else {
+            mUsbStorage = false;
+        }
     }
 
     private StorageItemPreference buildItem(int titleRes, int colorRes) {
@@ -195,9 +208,18 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         final boolean isRemovable = mVolume != null ? mVolume.isRemovable() : false;
         if (isRemovable) {
+            final int ejectTitleId;
+            final int ejectSummaryId;
+            if (mUsbStorage) {
+                ejectTitleId = R.string.usb_eject;
+                ejectSummaryId = R.string.usb_eject_summary;
+            } else {
+                ejectTitleId = R.string.sd_eject;
+                ejectSummaryId = R.string.sd_eject_summary;
+            }
             mMountTogglePreference = new Preference(context);
-            mMountTogglePreference.setTitle(R.string.sd_eject);
-            mMountTogglePreference.setSummary(R.string.sd_eject_summary);
+            mMountTogglePreference.setTitle(ejectTitleId);
+            mMountTogglePreference.setSummary(ejectSummaryId);
             addPreference(mMountTogglePreference);
         }
 
@@ -205,9 +227,18 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         // TODO: enable for non-primary volumes once MTP is fixed
         final boolean allowFormat = mVolume != null ? mVolume.isPrimary() : false;
         if (allowFormat) {
+            final int formatTitleId;
+            final int formatSummaryId;
+            if (mUsbStorage) {
+                formatTitleId = R.string.usb_format;
+                formatSummaryId = R.string.usb_format_summary;
+            } else {
+                formatTitleId = R.string.sd_format;
+                formatSummaryId = R.string.sd_format_summary;
+            }
             mFormatPreference = new Preference(context);
-            mFormatPreference.setTitle(R.string.sd_format);
-            mFormatPreference.setSummary(R.string.sd_format_summary);
+            mFormatPreference.setTitle(formatTitleId);
+            mFormatPreference.setSummary(formatSummaryId);
             addPreference(mFormatPreference);
         }
 
@@ -250,19 +281,46 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         if (Environment.MEDIA_MOUNTED.equals(state)
                 || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            final int ejectTitleId;
+            final int ejectSummaryId;
+            if (mUsbStorage) {
+                ejectTitleId = R.string.usb_eject;
+                ejectSummaryId = R.string.usb_eject_summary;
+            } else {
+                ejectTitleId = R.string.sd_eject;
+                ejectSummaryId = R.string.sd_eject_summary;
+            }
             mMountTogglePreference.setEnabled(true);
-            mMountTogglePreference.setTitle(mResources.getString(R.string.sd_eject));
-            mMountTogglePreference.setSummary(mResources.getString(R.string.sd_eject_summary));
+            mMountTogglePreference.setTitle(mResources.getString(ejectTitleId));
+            mMountTogglePreference.setSummary(mResources.getString(ejectSummaryId));
         } else {
             if (Environment.MEDIA_UNMOUNTED.equals(state) || Environment.MEDIA_NOFS.equals(state)
                     || Environment.MEDIA_UNMOUNTABLE.equals(state)) {
+                final int mountTitleId;
+                final int mountSummaryId;
+                if (mUsbStorage) {
+                    mountTitleId = R.string.usb_mount;
+                    mountSummaryId = R.string.usb_mount_summary;
+                } else {
+                    mountTitleId = R.string.sd_mount;
+                    mountSummaryId = R.string.sd_mount_summary;
+                }
                 mMountTogglePreference.setEnabled(true);
-                mMountTogglePreference.setTitle(mResources.getString(R.string.sd_mount));
-                mMountTogglePreference.setSummary(mResources.getString(R.string.sd_mount_summary));
+                mMountTogglePreference.setTitle(mResources.getString(mountTitleId));
+                mMountTogglePreference.setSummary(mResources.getString(mountSummaryId));
             } else {
+                final int insertTitleId;
+                final int insertSummaryId;
+                if (mUsbStorage) {
+                    insertTitleId = R.string.usb_mount;
+                    insertSummaryId = R.string.usb_insert_summary;
+                } else {
+                    insertTitleId = R.string.sd_mount;
+                    insertSummaryId = R.string.sd_insert_summary;
+                }
                 mMountTogglePreference.setEnabled(false);
-                mMountTogglePreference.setTitle(mResources.getString(R.string.sd_mount));
-                mMountTogglePreference.setSummary(mResources.getString(R.string.sd_insert_summary));
+                mMountTogglePreference.setTitle(mResources.getString(insertTitleId));
+                mMountTogglePreference.setSummary(mResources.getString(insertSummaryId));
             }
 
             removePreference(mUsageBarPreference);

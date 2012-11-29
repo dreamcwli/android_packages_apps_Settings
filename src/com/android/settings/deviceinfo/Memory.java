@@ -27,6 +27,7 @@ import android.content.IntentFilter;
 import android.content.pm.IPackageDataObserver;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -78,6 +79,8 @@ public class Memory extends SettingsPreferenceFragment {
     private UsbManager mUsbManager;
 
     private ArrayList<StorageVolumePreferenceCategory> mCategories = Lists.newArrayList();
+
+    private boolean mUsbStorage;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -231,6 +234,14 @@ public class Memory extends SettingsPreferenceFragment {
                 String state = mStorageManager.getVolumeState(volume.getPath());
                 if (Environment.MEDIA_MOUNTED.equals(state) ||
                         Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+                    final Resources system = getResources().getSystem();
+                    final int id = system.getIdentifier("storage_usb", "string", "android");
+                    if (id != 0 && volume.getDescription(getActivity())
+                            .equals(system.getString(id))) {
+                        mUsbStorage = true;
+                    } else {
+                        mUsbStorage = false;
+                    }
                     unmount();
                 } else {
                     mount();
@@ -262,35 +273,65 @@ public class Memory extends SettingsPreferenceFragment {
 
     @Override
     public Dialog onCreateDialog(int id) {
+        final int confirmTitleId;
+        final int confirmMessageId;
+        final int errorTitleId;
+        final int errorMessageId;
+        if (mUsbStorage) {
+            confirmTitleId = R.string.dlg_confirm_unmount_usb_title;
+            confirmMessageId = R.string.dlg_confirm_unmount_usb_text;
+            errorTitleId = R.string.dlg_error_unmount_usb_title;
+            errorMessageId = R.string.dlg_error_unmount_usb_text;
+        } else {
+            confirmTitleId = R.string.dlg_confirm_unmount_title;
+            confirmMessageId = R.string.dlg_confirm_unmount_text;
+            errorTitleId = R.string.dlg_error_unmount_title;
+            errorMessageId = R.string.dlg_error_unmount_text;
+        }
         switch (id) {
         case DLG_CONFIRM_UNMOUNT:
                 return new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.dlg_confirm_unmount_title)
+                    .setTitle(confirmTitleId)
                     .setPositiveButton(R.string.dlg_ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             doUnmount();
                         }})
                     .setNegativeButton(R.string.cancel, null)
-                    .setMessage(R.string.dlg_confirm_unmount_text)
+                    .setMessage(confirmMessageId)
                     .create();
         case DLG_ERROR_UNMOUNT:
                 return new AlertDialog.Builder(getActivity())
-            .setTitle(R.string.dlg_error_unmount_title)
+            .setTitle(errorTitleId)
             .setNeutralButton(R.string.dlg_ok, null)
-            .setMessage(R.string.dlg_error_unmount_text)
+            .setMessage(errorMessageId)
             .create();
         }
         return null;
     }
 
     private void doUnmount() {
+        final int unmountTextId;
+        if (mUsbStorage) {
+            unmountTextId = R.string.unmount_usb_inform_text;
+        } else {
+            unmountTextId = R.string.unmount_inform_text;
+        }
         // Present a toast here
-        Toast.makeText(getActivity(), R.string.unmount_inform_text, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), unmountTextId, Toast.LENGTH_SHORT).show();
         IMountService mountService = getMountService();
         try {
+            final int ejectingTitleId;
+            final int ejectingSummaryId;
+            if (mUsbStorage) {
+                ejectingTitleId = R.string.usb_ejecting_title;
+                ejectingSummaryId = R.string.usb_ejecting_summary;
+            } else {
+                ejectingTitleId = R.string.sd_ejecting_title;
+                ejectingSummaryId = R.string.sd_ejecting_summary;
+            }
             sLastClickedMountToggle.setEnabled(false);
-            sLastClickedMountToggle.setTitle(getString(R.string.sd_ejecting_title));
-            sLastClickedMountToggle.setSummary(getString(R.string.sd_ejecting_summary));
+            sLastClickedMountToggle.setTitle(getString(ejectingTitleId));
+            sLastClickedMountToggle.setSummary(getString(ejectingSummaryId));
             mountService.unmountVolume(sClickedMountPoint, true, false);
         } catch (RemoteException e) {
             // Informative dialog to user that unmount failed.
