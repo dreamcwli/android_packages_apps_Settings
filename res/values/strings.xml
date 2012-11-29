@@ -4388,4 +4388,33 @@
     <string name="use_system_bar">Use system bar</string>
     <!-- Use system bar description [CHAR LIMIT=100] -->
     <string name="use_system_bar_summary">Use system bar instead of status bar and navigation bar. Reboot is required. </string>
+
+    <!-- SD card & phone storage settings item title that will result in the phone unmounting the USB storage.  This will be done before the user phyiscally removes the SD card from the phone.  Kind of like the "Safely remove" on some operating systems.   -->
+    <string name="usb_eject">Unmount USB storage</string>
+    <!-- SD card & phone storage settings item title that will result in the phone unmounting the USB storage.  This will be done before the user phyiscally removes the SD card from the phone.  Kind of like the "Safely remove" on some operating systems.   -->
+    <string name="usb_eject_summary">Unmount the USB storage so you can safely remove it</string>
+    <!-- SD card & phone storage settings item summary that is displayed when no USB storage is inserted -->
+    <string name="usb_insert_summary">Insert USB storage for mounting</string>
+    <!-- SD card & phone storage settings item title that will result in the phone mounting the UST storage. -->
+    <string name="usb_mount">Mount USB storage</string>
+    <!-- Subtext for Mount USB Storage in Storage settings. User should never see this since we use automount. -->
+    <string name="usb_mount_summary"></string>
+    <!-- SD card & phone storage settings item title that will result in the phone formatting the USB storage.   [CHAR LIMIT=25] -->
+    <string name="usb_format">Erase USB storage</string>
+    <!-- SD card & phone storage settings item title that will result in the phone unmounting the USB storage.   [CHAR LIMIT=80] -->
+    <string name="usb_format_summary">Erases all data on the USB storage, such as music and photos</string>
+    <!-- USB storage eject confirmation dialog title   -->
+    <string name="dlg_confirm_unmount_usb_title">Unmount USB storage?</string>
+    <!-- USB storage eject confirmation dialog  -->
+    <string name="dlg_confirm_unmount_usb_text">If you unmount the USB storage, some apps you are using will stop and may be unavailable until you remount the USB storage.</string>
+    <!-- USB storage eject error dialog title   -->
+    <string name="dlg_error_unmount_usb_title"></string>
+    <!-- USB storage eject error dialog text   -->
+    <string name="dlg_error_unmount_usb_text">Couldn\'t unmount USB storage. Try again later.</string>
+    <!-- USB storage unmount informative text   [CHAR LIMIT=NONE] -->
+    <string name="unmount_usb_inform_text">USB storage will be unmounted.</string>
+    <!-- SD card eject progress title   -->
+    <string name="usb_ejecting_title">Unmounting</string>
+    <!-- SD card eject progress text   -->
+    <string name="usb_ejecting_summary">Unmount in progress</string>
 </resources>

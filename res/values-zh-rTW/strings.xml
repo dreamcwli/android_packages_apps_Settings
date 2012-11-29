@@ -1837,4 +1837,18 @@
     <string name="debug_ui_category">"使用者介面"</string>
     <string name="use_system_bar">"使用系統列"</string>
     <string name="use_system_bar_summary">"使用系統列取代狀態列與導航列，需要重新啟動"</string>
+    <string name="usb_eject">"卸載 USB 儲存裝置"</string>
+    <string name="usb_eject_summary">"請先卸載 USB 儲存裝置，才能將其安全移除"</string>
+    <string name="usb_insert_summary">"插入要掛載的 USB 儲存裝置"</string>
+    <string name="usb_mount">"掛載 USB 儲存裝置"</string>
+    <string name="usb_mount_summary"></string>
+    <string name="usb_format">"清除 USB 儲存裝置"</string>
+    <string name="usb_format_summary">"清除 USB 儲存裝置中的所有資料，例如音樂和相片"</string>
+    <string name="dlg_confirm_unmount_usb_title">"您要將 USB 儲存裝置退出？"</string>
+    <string name="dlg_confirm_unmount_usb_text">"如果您將 USB 儲存裝置退出，則某些正在使用中的應用程式會停止運作，而且可能無法使用，直到重新插入 USB 儲存裝置之後才會恢復正常。"</string>
+    <string name="dlg_error_unmount_usb_title"></string>
+    <string name="dlg_error_unmount_usb_text">"無法將 USB 儲存裝置退出，請稍後再試。"</string>
+    <string name="unmount_usb_inform_text">"即將卸載 USB 儲存裝置。"</string>
+    <string name="usb_ejecting_title">"正在取出"</string>
+    <string name="usb_ejecting_summary">"正在取出"</string>
 </resources>
