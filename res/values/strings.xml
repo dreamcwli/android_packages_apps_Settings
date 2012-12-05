@@ -4432,4 +4432,21 @@
     <string name="usb_ejecting_title">Unmounting</string>
     <!-- SD card eject progress text   -->
     <string name="usb_ejecting_summary">Unmount in progress</string>
+
+    <!-- Preference category for performance debugging development settings. [CHAR LIMIT=25] -->
+    <string name="debug_performance_category">Performance</string>
+
+    <!-- UI debug setting: maximum frequency for CPU frequency scaling [CHAR LIMIT=25] -->
+    <string name="max_cpu_frequency_title">Maximum CPU frequency</string>
+
+    <!-- UI debug setting: minimum frequency for CPU frequency scaling [CHAR LIMIT=25] -->
+    <string name="min_cpu_frequency_title">Minimum CPU frequency</string>
+
+    <!-- UI debug setting: governor for CPU frequency scaling [CHAR LIMIT=25] -->
+    <string name="cpu_scaling_governor_title">CPU scaling governor</string>
+
+    <!-- UI debug setting: keep performance settings? [CHAR LIMIT=25] -->
+    <string name="keep_performance_settings_title">Keep performance settings</string>
+    <!-- UI debug setting: keep performance settings summary [CHAR LIMIT=50] -->
+    <string name="keep_performance_settings_summary">Keep current performance settings after reboot</string>
 </resources>

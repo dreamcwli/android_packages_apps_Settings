@@ -27,11 +27,13 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.admin.DevicePolicyManager;
 import android.app.backup.IBackupManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -53,6 +55,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -64,6 +67,14 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -127,12 +138,28 @@ public class DevelopmentSettings extends PreferenceFragment
     private static final String APP_PROCESS_LIMIT_KEY = "app_process_limit";
     private static final String SHOW_ALL_ANRS_KEY = "show_all_anrs";
     private static final String USE_SYSTEM_BAR_KEY = "use_system_bar";
+    private static final String MAX_CPU_FREQUENCY_KEY = "max_cpu_frequency";
+    private static final String MIN_CPU_FREQUENCY_KEY = "min_cpu_frequency";
+    private static final String CPU_SCALING_GOVERNOR_KEY = "cpu_scaling_governor";
+    private static final String KEEP_PERFORMANCE_SETTINGS_KEY = "keep_performance_settings";
+    private static final String PERFORMANCE_SETTINGS_PROPERTY = "persist.sys.performance";
 
     private static final String TAG_CONFIRM_ENFORCE = "confirm_enforce";
 
     private static final String PACKAGE_MIME_TYPE = "application/vnd.android.package-archive";
 
     private static final int RESULT_DEBUG_APP = 1000;
+
+    private static final String CPU_FREQUENCIES_FILENAME
+            = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies";
+    private static final String MAX_CPU_FREQUENCY_FILENAME
+            = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq";
+    private static final String MIN_CPU_FREQUENCY_FILENAME
+            = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq";
+    private static final String CPU_SCALING_GOVERNORS_FILENAME
+            = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors";
+    private static final String CPU_SCALING_GOVERNOR_FILENAME
+            = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor";
 
     private IWindowManager mWindowManager;
     private IBackupManager mBackupManager;
@@ -182,6 +209,10 @@ public class DevelopmentSettings extends PreferenceFragment
     private CheckBoxPreference mShowAllANRs;
 
     private CheckBoxPreference mUseSystemBar;
+
+    private ListPreference mMaxCpuFrequency;
+    private ListPreference mMinCpuFrequency;
+    private ListPreference mCpuScalingGovernor;
 
     private final ArrayList<Preference> mAllPrefs = new ArrayList<Preference>();
     private final ArrayList<CheckBoxPreference> mResetCbPrefs
@@ -277,6 +308,13 @@ public class DevelopmentSettings extends PreferenceFragment
                 SHOW_ALL_ANRS_KEY);
         mAllPrefs.add(mShowAllANRs);
         mResetCbPrefs.add(mShowAllANRs);
+
+        mMaxCpuFrequency = (ListPreference) findPreference(MAX_CPU_FREQUENCY_KEY);
+        mMaxCpuFrequency.setOnPreferenceChangeListener(this);
+        mMinCpuFrequency = (ListPreference) findPreference(MIN_CPU_FREQUENCY_KEY);
+        mMinCpuFrequency.setOnPreferenceChangeListener(this);
+        mCpuScalingGovernor = (ListPreference) findPreference(CPU_SCALING_GOVERNOR_KEY);
+        mCpuScalingGovernor.setOnPreferenceChangeListener(this);
 
         Preference hdcpChecking = findPreference(HDCP_CHECKING_KEY);
         if (hdcpChecking != null) {
@@ -425,6 +463,8 @@ public class DevelopmentSettings extends PreferenceFragment
         updateVerifyAppsOverUsbOptions();
         updateBugreportOptions();
         updateUseSystemBarOptions();
+        updateCpuFrequencyOptions();
+        updateCpuScalingGovernorOptions();
     }
 
     private void resetDangerousOptions() {
@@ -951,6 +991,87 @@ public class DevelopmentSettings extends PreferenceFragment
         pokeSystemProperties();
     }
 
+    private void updateCpuFrequencyValue(String filename, ListPreference pref) {
+        final String cpuFrequency;
+        if (!isFileExisted(filename) || (cpuFrequency = readOneLineFile(filename)) == null) {
+            pref.setSummary(null);
+            pref.setEnabled(false);
+        } else {
+            pref.setValue(cpuFrequency);
+            pref.setSummary(toReadableCpuFrequency(cpuFrequency));
+            pref.setEnabled(true);
+        }
+    }
+
+    private void updateCpuFrequencyOptions() {
+        final String cpuFrequenciesLine;
+        if (!isFileExisted(CPU_FREQUENCIES_FILENAME)
+                || (cpuFrequenciesLine = readOneLineFile(CPU_FREQUENCIES_FILENAME)) == null) {
+            mMaxCpuFrequency.setSummary(null);
+            mMaxCpuFrequency.setEnabled(false);
+            mMinCpuFrequency.setSummary(null);
+            mMinCpuFrequency.setEnabled(false);
+        } else {
+            final String[] cpuFrequencies = cpuFrequenciesLine.split(" ");
+            final String[] readableCpuFrequencies = new String[cpuFrequencies.length];
+            for (int i = 0; i < cpuFrequencies.length; i++) {
+                readableCpuFrequencies[i] = toReadableCpuFrequency(cpuFrequencies[i]);
+            }
+
+            mMaxCpuFrequency.setEntryValues(cpuFrequencies);
+            mMaxCpuFrequency.setEntries(readableCpuFrequencies);
+            updateCpuFrequencyValue(MAX_CPU_FREQUENCY_FILENAME, mMaxCpuFrequency);
+
+            mMinCpuFrequency.setEntryValues(cpuFrequencies);
+            mMinCpuFrequency.setEntries(readableCpuFrequencies);
+            updateCpuFrequencyValue(MIN_CPU_FREQUENCY_FILENAME, mMinCpuFrequency);
+        }
+    }
+
+    private boolean writeCpuFrequencyOption(String filename, ListPreference pref, Object newValue) {
+        if (writeOneLineFile(filename, (String)newValue)) {
+            updateCpuFrequencyValue(filename, pref);
+            return true;
+        }
+        return false;
+    }
+
+    private void updateCpuScalingGovernorValue() {
+        final String cpuScalingGovernor;
+        if (!isFileExisted(CPU_SCALING_GOVERNOR_FILENAME)
+                || (cpuScalingGovernor = readOneLineFile(CPU_SCALING_GOVERNOR_FILENAME)) == null) {
+            mCpuScalingGovernor.setSummary(null);
+            mCpuScalingGovernor.setEnabled(false);
+        } else {
+            mCpuScalingGovernor.setValue(cpuScalingGovernor);
+            mCpuScalingGovernor.setSummary(cpuScalingGovernor);
+            mCpuScalingGovernor.setEnabled(true);
+        }
+    }
+
+    private void updateCpuScalingGovernorOptions() {
+        final String cpuScalingGovernorsLine;
+        if (!isFileExisted(CPU_SCALING_GOVERNORS_FILENAME)
+                || (cpuScalingGovernorsLine = readOneLineFile(CPU_SCALING_GOVERNORS_FILENAME))
+                        == null) {
+            mCpuScalingGovernor.setSummary(null);
+            mCpuScalingGovernor.setEnabled(false);
+        } else {
+            final String[] cpuScalingGovernors = cpuScalingGovernorsLine.split(" ");
+            mCpuScalingGovernor.setEntryValues(cpuScalingGovernors);
+            mCpuScalingGovernor.setEntries(cpuScalingGovernors);
+            updateCpuScalingGovernorValue();
+        }
+    }
+
+    private boolean writeCpuScalingGovernorOptions(Object newValue) {
+        if (writeOneLineFile(CPU_SCALING_GOVERNOR_FILENAME, (String)newValue)) {
+            updateCpuScalingGovernorValue();
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (buttonView == mEnabledSwitch) {
@@ -1107,6 +1228,12 @@ public class DevelopmentSettings extends PreferenceFragment
         } else if (preference == mAppProcessLimit) {
             writeAppProcessLimitOptions(newValue);
             return true;
+        } else if (preference == mMaxCpuFrequency) {
+            return writeCpuFrequencyOption(MAX_CPU_FREQUENCY_FILENAME, mMaxCpuFrequency, newValue);
+        } else if (preference == mMinCpuFrequency) {
+            return writeCpuFrequencyOption(MIN_CPU_FREQUENCY_FILENAME, mMinCpuFrequency, newValue);
+        } else if (preference == mCpuScalingGovernor) {
+            return writeCpuScalingGovernorOptions(newValue);
         }
         return false;
     }
@@ -1240,6 +1367,47 @@ public class DevelopmentSettings extends PreferenceFragment
         }
     }
 
+    public static class BootReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (SystemProperties.getBoolean(PERFORMANCE_SETTINGS_PROPERTY, false) == false
+                    && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                if (!prefs.getBoolean(KEEP_PERFORMANCE_SETTINGS_KEY, false)) {
+                    return;
+                }
+
+                final String cpuFrequenciesLine = readOneLineFile(CPU_FREQUENCIES_FILENAME);
+                final String maxCpuFrequency = prefs.getString(MAX_CPU_FREQUENCY_KEY, null);
+                final String minCpuFrequency = prefs.getString(MIN_CPU_FREQUENCY_KEY, null);
+                final String cpuScalingGovernorsLine
+                        = readOneLineFile(CPU_SCALING_GOVERNORS_FILENAME);
+                final String cpuScalingGovernor = prefs.getString(CPU_SCALING_GOVERNOR_KEY, null);
+                if (cpuFrequenciesLine == null || maxCpuFrequency == null || minCpuFrequency == null
+                        || cpuScalingGovernorsLine == null || cpuScalingGovernor == null) {
+                    return;
+                }
+
+                final List<String> cpuFrequencies = Arrays.asList(cpuFrequenciesLine.split(" "));
+                if (cpuFrequencies.contains(maxCpuFrequency)) {
+                    writeOneLineFile(MAX_CPU_FREQUENCY_FILENAME, maxCpuFrequency);
+                }
+                if (cpuFrequencies.contains(minCpuFrequency)) {
+                    writeOneLineFile(MIN_CPU_FREQUENCY_FILENAME, minCpuFrequency);
+                }
+                final List<String> cpuScalingGovernors
+                        = Arrays.asList(cpuScalingGovernorsLine.split(" "));
+                if (cpuScalingGovernors.contains(cpuScalingGovernor)) {
+                    writeOneLineFile(CPU_SCALING_GOVERNOR_FILENAME, cpuScalingGovernor);
+                }
+
+                SystemProperties.set(PERFORMANCE_SETTINGS_PROPERTY, "true");
+            } else {
+                SystemProperties.set(PERFORMANCE_SETTINGS_PROPERTY, "false");
+            }
+        }
+    }
+
     private static boolean isPermissionEnforced(String permission) {
         try {
             return ActivityThread.getPackageManager().isPermissionEnforced(permission);
@@ -1266,5 +1434,43 @@ public class DevelopmentSettings extends PreferenceFragment
     private void writeUseSystemBarOptions() {
         SystemProperties.set(SYSTEM_BAR_UI_PROPERTY, mUseSystemBar.isChecked() ? "true" : "false");
         pokeSystemProperties();
+    }
+
+    private static boolean isFileExisted(String filename) {
+        return new File(filename).exists();
+    }
+
+    private static String readOneLineFile(String filename) {
+        String line = null;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            try {
+                line = br.readLine();
+            } finally {
+                br.close();
+            }
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+        return line;
+    }
+
+    private static boolean writeOneLineFile(String filename, String line) {
+        try {
+            FileWriter fw = new FileWriter(filename);
+            try {
+                fw.write(line);
+            } finally {
+                fw.close();
+            }
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static String toReadableCpuFrequency(String frequency) {
+        return new StringBuilder().append(Integer.valueOf(frequency) / 1000).append(" MHz")
+                .toString();
     }
 }
