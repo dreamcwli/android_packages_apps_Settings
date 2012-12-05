@@ -234,4 +234,29 @@
 
      </PreferenceCategory>
 
+    <PreferenceCategory android:key="debug_performance_category"
+            android:title="@string/debug_performance_category">
+
+        <ListPreference
+            android:key="max_cpu_frequency"
+            android:dialogTitle="@string/max_cpu_frequency_title"
+            android:title="@string/max_cpu_frequency_title" />
+
+        <ListPreference
+            android:key="min_cpu_frequency"
+            android:dialogTitle="@string/min_cpu_frequency_title"
+            android:title="@string/min_cpu_frequency_title" />
+
+        <ListPreference
+            android:key="cpu_scaling_governor"
+            android:dialogTitle="@string/cpu_scaling_governor_title"
+            android:title="@string/cpu_scaling_governor_title" />
+
+        <CheckBoxPreference
+            android:key="keep_performance_settings"
+            android:title="@string/keep_performance_settings_title"
+            android:summary="@string/keep_performance_settings_summary"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

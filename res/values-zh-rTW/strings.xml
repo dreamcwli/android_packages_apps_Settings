@@ -1851,4 +1851,10 @@
     <string name="unmount_usb_inform_text">"即將卸載 USB 儲存裝置。"</string>
     <string name="usb_ejecting_title">"正在取出"</string>
     <string name="usb_ejecting_summary">"正在取出"</string>
+    <string name="debug_performance_category">"效能"</string>
+    <string name="max_cpu_frequency_title">"CPU 最高頻率"</string>
+    <string name="min_cpu_frequency_title">"CPU 最低頻率"</string>
+    <string name="cpu_scaling_governor_title">"CPU 頻率調整模式"</string>
+    <string name="keep_performance_settings_title">"保留效能設定"</string>
+    <string name="keep_performance_settings_summary">"重新啟動後保留目前的效能設定"</string>
 </resources>

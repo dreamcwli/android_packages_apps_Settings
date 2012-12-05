@@ -1847,4 +1847,10 @@
     <string name="unmount_usb_inform_text">"系统将会卸载 USB 存储设备。"</string>
     <string name="usb_ejecting_title">"正在卸载"</string>
     <string name="usb_ejecting_summary">"正在卸载"</string>
+    <string name="debug_performance_category">"性能"</string>
+    <string name="max_cpu_frequency_title">"最高 CPU 频率"</string>
+    <string name="min_cpu_frequency_title">"最低 CPU 频率"</string>
+    <string name="cpu_scaling_governor_title">"CPU 调节器"</string>
+    <string name="keep_performance_settings_title">"保留性能设置"</string>
+    <string name="keep_performance_settings_summary">"在重新启动时保留当前的性能设置"</string>
 </resources>
