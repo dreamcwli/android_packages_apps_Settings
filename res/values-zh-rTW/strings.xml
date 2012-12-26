@@ -1840,7 +1840,7 @@
     <string name="cell_broadcast_settings_summary" msgid="3301339398950905913">"選取要顯示的緊急警示類型。"</string>
     <string name="debug_ui_category">"使用者介面"</string>
     <string name="use_system_bar">"使用系統列"</string>
-    <string name="use_system_bar_summary">"使用系統列取代狀態列與導航列，需要重新啟動"</string>
+    <string name="use_system_bar_summary">"使用系統列取代狀態列與導航列"</string>
     <string name="usb_eject">"卸載 USB 儲存裝置"</string>
     <string name="usb_eject_summary">"請先卸載 USB 儲存裝置，才能將其安全移除"</string>
     <string name="usb_insert_summary">"插入要掛載的 USB 儲存裝置"</string>

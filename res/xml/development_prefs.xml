@@ -49,6 +49,16 @@
         android:title="@string/enforce_read_external_title"
         android:summary="@string/enforce_read_external_summary" />
 
+    <PreferenceCategory android:key="debug_ui_category"
+            android:title="@string/debug_ui_category">
+
+        <CheckBoxPreference
+            android:key="use_system_bar"
+            android:title="@string/use_system_bar"
+            android:summary="@string/use_system_bar_summary"/>
+
+     </PreferenceCategory>
+
     <PreferenceCategory android:key="debug_debugging_category"
             android:title="@string/debug_debugging_category">
 
@@ -221,16 +231,6 @@
             android:key="show_all_anrs"
             android:title="@string/show_all_anrs"
             android:summary="@string/show_all_anrs_summary"/>
-
-     </PreferenceCategory>
-
-    <PreferenceCategory android:key="debug_ui_category"
-            android:title="@string/debug_ui_category">
-
-        <CheckBoxPreference
-            android:key="use_system_bar"
-            android:title="@string/use_system_bar"
-            android:summary="@string/use_system_bar_summary"/>
 
      </PreferenceCategory>
 

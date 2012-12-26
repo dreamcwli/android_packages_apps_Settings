@@ -28,11 +28,13 @@ import android.app.DialogFragment;
 import android.app.admin.DevicePolicyManager;
 import android.app.backup.IBackupManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -41,6 +43,7 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
@@ -48,6 +51,7 @@ import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.os.SystemProperties;
 import android.os.Trace;
+import android.os.UserHandle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.MultiCheckPreference;
@@ -224,6 +228,8 @@ public class DevelopmentSettings extends PreferenceFragment
     private boolean mDialogClicked;
     private Dialog mEnableDialog;
     private Dialog mAdbDialog;
+
+    private BroadcastReceiver mSystemUIReceiver;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -1434,6 +1440,35 @@ public class DevelopmentSettings extends PreferenceFragment
     private void writeUseSystemBarOptions() {
         SystemProperties.set(SYSTEM_BAR_UI_PROPERTY, mUseSystemBar.isChecked() ? "true" : "false");
         pokeSystemProperties();
+
+        if (mSystemUIReceiver == null) {
+            mSystemUIReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if ("com.android.systemui.SYSTEMUI_STARTED".equals(intent.getAction())) {
+                        getActivity().unregisterReceiver(mSystemUIReceiver);
+                    } else if ("com.android.systemui.SYSTEMUI_STOPPED".equals(intent.getAction())) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                final Intent intent = new Intent();
+                                intent.setComponent(new ComponentName(
+                                        "com.android.systemui",
+                                        "com.android.systemui.SystemUIService"));
+                                getActivity().startServiceAsUser(intent, UserHandle.OWNER);
+                            }
+                        }, 500);
+                    }
+                }
+            };
+        }
+        final IntentFilter filter = new IntentFilter();
+        final Activity activity = getActivity();
+        filter.addAction("com.android.systemui.SYSTEMUI_STARTED");
+        filter.addAction("com.android.systemui.SYSTEMUI_STOPPED");
+        activity.registerReceiver(mSystemUIReceiver, filter);
+        activity.sendBroadcast(
+                new Intent().setAction("com.android.settings.SYSBAR_SETTING_CHANGED"));
     }
 
     private static boolean isFileExisted(String filename) {
