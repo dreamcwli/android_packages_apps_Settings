@@ -1832,7 +1832,7 @@
     <string name="cell_broadcast_settings_summary" msgid="3301339398950905913">"请选择要显示的紧急消息类型。"</string>
     <string name="debug_ui_category">"使用者界面"</string>
     <string name="use_system_bar">"使用系统栏"</string>
-    <string name="use_system_bar_summary">"使用系统栏取代工具栏与导航栏，需要重新启动"</string>
+    <string name="use_system_bar_summary">"使用系统栏取代工具栏与导航栏"</string>
     <string name="usb_eject">"卸载 USB 存储设备"</string>
     <string name="usb_eject_summary">"需要先卸载 USB 存储设备，然后才能將其安全移除"</string>
     <string name="usb_insert_summary">"插入要装载的 USB 存储设备"</string>

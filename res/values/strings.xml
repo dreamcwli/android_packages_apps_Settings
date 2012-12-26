@@ -4387,7 +4387,7 @@
     <!-- Use system bar title [CHAR LIMIT=50] -->
     <string name="use_system_bar">Use system bar</string>
     <!-- Use system bar description [CHAR LIMIT=100] -->
-    <string name="use_system_bar_summary">Use system bar instead of status bar and navigation bar. Reboot is required. </string>
+    <string name="use_system_bar_summary">Use system bar instead of status bar and navigation bar</string>
 
     <!-- SD card & phone storage settings item title that will result in the phone unmounting the USB storage.  This will be done before the user phyiscally removes the SD card from the phone.  Kind of like the "Safely remove" on some operating systems.   -->
     <string name="usb_eject">Unmount USB storage</string>
