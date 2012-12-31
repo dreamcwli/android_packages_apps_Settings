@@ -45,8 +45,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import android.util.Log;
-
 public class StorageVolumePreferenceCategory extends PreferenceCategory {
     public static final String KEY_CACHE = "cache";
 
@@ -275,8 +273,6 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
             if (mFormatPreference != null) {
                 removePreference(mFormatPreference);
             }
-        } else {
-            mItemAvailable.setSummary(R.string.memory_available);
         }
 
         if (Environment.MEDIA_MOUNTED.equals(state)
