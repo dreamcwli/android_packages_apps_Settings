@@ -244,8 +244,6 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
             if (mFormatPreference != null) {
                 removePreference(mFormatPreference);
             }
-        } else {
-            mItemAvailable.setSummary(R.string.memory_available);
         }
 
         if (Environment.MEDIA_MOUNTED.equals(state)
