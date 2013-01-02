@@ -1861,4 +1861,5 @@
     <string name="cpu_scaling_governor_title">"CPU 頻率調整模式"</string>
     <string name="keep_performance_settings_title">"保留效能設定"</string>
     <string name="keep_performance_settings_summary">"重新啟動後保留目前的效能設定"</string>
+    <string name="charging_light_title">"充電指示燈"</string>
 </resources>

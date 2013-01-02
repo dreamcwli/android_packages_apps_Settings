@@ -1857,4 +1857,5 @@
     <string name="cpu_scaling_governor_title">"CPU 调节器"</string>
     <string name="keep_performance_settings_title">"保留性能设置"</string>
     <string name="keep_performance_settings_summary">"在重新启动时保留当前的性能设置"</string>
+    <string name="charging_light_title">"充电指示灯"</string>
 </resources>

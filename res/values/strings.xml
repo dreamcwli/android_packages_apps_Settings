@@ -4449,4 +4449,7 @@
     <string name="keep_performance_settings_title">Keep performance settings</string>
     <!-- UI debug setting: keep performance settings summary [CHAR LIMIT=50] -->
     <string name="keep_performance_settings_summary">Keep current performance settings after reboot</string>
+
+    <!-- Display settings screen, charging light check box label -->
+    <string name="charging_light_title">Charging light</string>
 </resources>

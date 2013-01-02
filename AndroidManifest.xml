@@ -606,6 +606,12 @@
                 android:resource="@id/display_settings" />
         </activity-alias>
 
+        <receiver android:name=".DisplaySettings$BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <activity android:name="Settings$DeviceInfoSettingsActivity"
                 android:theme="@android:style/Theme.Holo.DialogWhenLarge"
                 android:label="@string/device_info_settings"
