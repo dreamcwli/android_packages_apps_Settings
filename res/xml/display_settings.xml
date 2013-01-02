@@ -58,6 +58,10 @@
             android:title="@string/notification_pulse_title"
             android:persistent="false" />
 
+        <CheckBoxPreference
+            android:key="charging_light"
+            android:title="@string/charging_light_title" />
+
         <PreferenceScreen
                 android:key="wifi_display"
                 android:title="@string/wifi_display_settings_title"

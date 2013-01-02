@@ -33,6 +33,7 @@ import android.hardware.display.WifiDisplay;
 import android.hardware.display.WifiDisplayStatus;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -61,8 +62,11 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_NOTIFICATION_PULSE = "notification_pulse";
     private static final String KEY_SCREEN_SAVER = "screensaver";
     private static final String KEY_WIFI_DISPLAY = "wifi_display";
+    private static final String KEY_CHARGING_LIGHT = "charging_light";
 
     private static final int DLG_GLOBAL_CHANGE_WARNING = 1;
+
+    private static final String CHARGING_LIGHT_PROPERTY = "persist.sys.charging_light";
 
     private DisplayManager mDisplayManager;
 
@@ -85,6 +89,11 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             updateAccelerometerRotationCheckbox();
         }
     };
+
+    private CheckBoxPreference mChargingLight;
+    private String mChargingLightPath;
+    private String mChargingLightEnabledValue;
+    private String mChargingLightDisabledValue;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -132,6 +141,22 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             } catch (SettingNotFoundException snfe) {
                 Log.e(TAG, Settings.System.NOTIFICATION_LIGHT_PULSE + " not found");
             }
+        }
+
+        Resources resources = getResources();
+        mChargingLightPath = resources.getString(
+                com.android.internal.R.string.config_chargingLightPath);
+        mChargingLight = (CheckBoxPreference) findPreference(KEY_CHARGING_LIGHT);
+        if (resources.getBoolean(com.android.internal.R.bool.config_chargingLightSupported)
+                && Utils.isFileExisted(mChargingLightPath)) {
+            mChargingLightEnabledValue = resources.getString(
+                    com.android.internal.R.string.config_chargingLightEnabledValue);
+            mChargingLightDisabledValue = resources.getString(
+                    com.android.internal.R.string.config_chargingLightDisabledValue);
+            mChargingLight.setChecked(SystemProperties.getBoolean(CHARGING_LIGHT_PROPERTY, false));
+            mChargingLight.setOnPreferenceChangeListener(this);
+        } else {
+            getPreferenceScreen().removePreference(mChargingLight);
         }
 
         mDisplayManager = (DisplayManager)getActivity().getSystemService(
@@ -336,6 +361,13 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             Settings.System.putInt(getContentResolver(), Settings.System.NOTIFICATION_LIGHT_PULSE,
                     value ? 1 : 0);
             return true;
+        } else if (preference == mChargingLight) {
+            boolean value = mChargingLight.isChecked();
+            Resources resources = getResources();
+            SystemProperties.set(CHARGING_LIGHT_PROPERTY, value ? "true" : "false");
+            Utils.writeOneLineFile(mChargingLightPath, value
+                    ? mChargingLightEnabledValue : mChargingLightDisabledValue);
+            return true;
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -380,5 +412,24 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             }
         }
         return false;
+    }
+
+    public static class BootReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final Resources resources = context.getResources();
+            final String chargingLightPath = resources.getString(
+                    com.android.internal.R.string.config_chargingLightPath);
+            if (resources.getBoolean(com.android.internal.R.bool.config_chargingLightSupported)
+                    && Utils.isFileExisted(chargingLightPath)) {
+                final String chargingLightEnabledValue = resources.getString(
+                        com.android.internal.R.string.config_chargingLightEnabledValue);
+                final String chargingLightDisabledValue = resources.getString(
+                        com.android.internal.R.string.config_chargingLightDisabledValue);
+                Utils.writeOneLineFile(chargingLightPath,
+                        SystemProperties.getBoolean(CHARGING_LIGHT_PROPERTY, false)
+                                ? chargingLightEnabledValue : chargingLightDisabledValue);
+            }
+        }
     }
 }

@@ -64,7 +64,12 @@ import android.widget.TabWidget;
 
 import com.android.settings.users.ProfileUpdateReceiver;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -593,5 +598,38 @@ public class Utils {
     public static boolean hasMultipleUsers(Context context) {
         return ((UserManager) context.getSystemService(Context.USER_SERVICE))
                 .getUsers().size() > 1;
+    }
+
+    public static boolean isFileExisted(String filename) {
+        return new File(filename).exists();
+    }
+
+    public static String readOneLineFile(String filename) {
+        String line = null;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            try {
+                line = br.readLine();
+            } finally {
+                br.close();
+            }
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+        return line;
+    }
+
+    public static boolean writeOneLineFile(String filename, String line) {
+        try {
+            FileWriter fw = new FileWriter(filename);
+            try {
+                fw.write(line);
+            } finally {
+                fw.close();
+            }
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 }
