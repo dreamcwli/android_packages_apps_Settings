@@ -141,6 +141,7 @@ public class DevelopmentSettings extends PreferenceFragment
             = "immediately_destroy_activities";
     private static final String APP_PROCESS_LIMIT_KEY = "app_process_limit";
     private static final String SHOW_ALL_ANRS_KEY = "show_all_anrs";
+    private static final String DEBUG_UI_CATEGORY_KEY = "debug_ui_category";
     private static final String USE_SYSTEM_BAR_KEY = "use_system_bar";
     private static final String MAX_CPU_FREQUENCY_KEY = "max_cpu_frequency";
     private static final String MIN_CPU_FREQUENCY_KEY = "min_cpu_frequency";
@@ -329,6 +330,9 @@ public class DevelopmentSettings extends PreferenceFragment
         removeHdcpOptionsForProduction();
 
         mUseSystemBar = findAndInitCheckboxPref(USE_SYSTEM_BAR_KEY);
+        if (!getActivity().getResources().getBoolean(R.bool.config_show_sysbar_setting)) {
+            getPreferenceScreen().removePreference(findPreference(DEBUG_UI_CATEGORY_KEY));
+        }
     }
 
     private CheckBoxPreference findAndInitCheckboxPref(String key) {
