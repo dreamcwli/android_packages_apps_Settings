@@ -454,6 +454,10 @@ public class Settings extends PreferenceActivity
                         || Utils.isMonkeyRunning()) {
                     target.remove(i);
                 }
+            } else if (id == R.id.user_interface_settings) {
+                if (!getResources().getBoolean(R.bool.config_show_sysbar_setting)) {
+                    target.remove(i);
+                }
             } else if (id == R.id.development_settings) {
                 if (!showDev) {
                     target.remove(i);

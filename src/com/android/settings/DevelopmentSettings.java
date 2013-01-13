@@ -28,13 +28,11 @@ import android.app.DialogFragment;
 import android.app.admin.DevicePolicyManager;
 import android.app.backup.IBackupManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -43,7 +41,6 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
@@ -51,7 +48,6 @@ import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.os.SystemProperties;
 import android.os.Trace;
-import android.os.UserHandle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.MultiCheckPreference;
@@ -112,7 +108,6 @@ public class DevelopmentSettings extends PreferenceFragment
     private static final String BUGREPORT = "bugreport";
     private static final String BUGREPORT_IN_POWER_KEY = "bugreport_in_power";
     private static final String OPENGL_TRACES_PROPERTY = "debug.egl.trace";
-    private static final String SYSTEM_BAR_UI_PROPERTY = "persist.sys.ui.sysbar";
 
     private static final String DEBUG_APP_KEY = "debug_app";
     private static final String WAIT_FOR_DEBUGGER_KEY = "wait_for_debugger";
@@ -141,8 +136,6 @@ public class DevelopmentSettings extends PreferenceFragment
             = "immediately_destroy_activities";
     private static final String APP_PROCESS_LIMIT_KEY = "app_process_limit";
     private static final String SHOW_ALL_ANRS_KEY = "show_all_anrs";
-    private static final String DEBUG_UI_CATEGORY_KEY = "debug_ui_category";
-    private static final String USE_SYSTEM_BAR_KEY = "use_system_bar";
     private static final String MAX_CPU_FREQUENCY_KEY = "max_cpu_frequency";
     private static final String MIN_CPU_FREQUENCY_KEY = "min_cpu_frequency";
     private static final String CPU_SCALING_GOVERNOR_KEY = "cpu_scaling_governor";
@@ -213,8 +206,6 @@ public class DevelopmentSettings extends PreferenceFragment
 
     private CheckBoxPreference mShowAllANRs;
 
-    private CheckBoxPreference mUseSystemBar;
-
     private ListPreference mMaxCpuFrequency;
     private ListPreference mMinCpuFrequency;
     private ListPreference mCpuScalingGovernor;
@@ -229,8 +220,6 @@ public class DevelopmentSettings extends PreferenceFragment
     private boolean mDialogClicked;
     private Dialog mEnableDialog;
     private Dialog mAdbDialog;
-
-    private BroadcastReceiver mSystemUIReceiver;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -328,11 +317,6 @@ public class DevelopmentSettings extends PreferenceFragment
             mAllPrefs.add(hdcpChecking);
         }
         removeHdcpOptionsForProduction();
-
-        mUseSystemBar = findAndInitCheckboxPref(USE_SYSTEM_BAR_KEY);
-        if (!getActivity().getResources().getBoolean(R.bool.config_show_sysbar_setting)) {
-            getPreferenceScreen().removePreference(findPreference(DEBUG_UI_CATEGORY_KEY));
-        }
     }
 
     private CheckBoxPreference findAndInitCheckboxPref(String key) {
@@ -472,7 +456,6 @@ public class DevelopmentSettings extends PreferenceFragment
         updateShowAllANRsOptions();
         updateVerifyAppsOverUsbOptions();
         updateBugreportOptions();
-        updateUseSystemBarOptions();
         updateCpuFrequencyOptions();
         updateCpuScalingGovernorOptions();
     }
@@ -1203,8 +1186,6 @@ public class DevelopmentSettings extends PreferenceFragment
             writeShowHwOverdrawOptions();
         } else if (preference == mDebugLayout) {
             writeDebugLayoutOptions();
-        } else if (preference == mUseSystemBar) {
-            writeUseSystemBarOptions();
         }
 
         return false;
@@ -1435,44 +1416,6 @@ public class DevelopmentSettings extends PreferenceFragment
         } catch (RemoteException e) {
             throw new RuntimeException("Problem talking with PackageManager", e);
         }
-    }
-
-    private void updateUseSystemBarOptions() {
-        updateCheckBox(mUseSystemBar, SystemProperties.getBoolean(SYSTEM_BAR_UI_PROPERTY, false));
-    }
-
-    private void writeUseSystemBarOptions() {
-        SystemProperties.set(SYSTEM_BAR_UI_PROPERTY, mUseSystemBar.isChecked() ? "true" : "false");
-        pokeSystemProperties();
-
-        if (mSystemUIReceiver == null) {
-            mSystemUIReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if ("com.android.systemui.SYSTEMUI_STARTED".equals(intent.getAction())) {
-                        getActivity().unregisterReceiver(mSystemUIReceiver);
-                    } else if ("com.android.systemui.SYSTEMUI_STOPPED".equals(intent.getAction())) {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                final Intent intent = new Intent();
-                                intent.setComponent(new ComponentName(
-                                        "com.android.systemui",
-                                        "com.android.systemui.SystemUIService"));
-                                getActivity().startServiceAsUser(intent, UserHandle.OWNER);
-                            }
-                        }, 500);
-                    }
-                }
-            };
-        }
-        final IntentFilter filter = new IntentFilter();
-        final Activity activity = getActivity();
-        filter.addAction("com.android.systemui.SYSTEMUI_STARTED");
-        filter.addAction("com.android.systemui.SYSTEMUI_STOPPED");
-        activity.registerReceiver(mSystemUIReceiver, filter);
-        activity.sendBroadcast(
-                new Intent().setAction("com.android.settings.SYSBAR_SETTING_CHANGED"));
     }
 
     private static boolean isFileExisted(String filename) {
