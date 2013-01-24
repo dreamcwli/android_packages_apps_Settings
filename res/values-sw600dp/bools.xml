@@ -17,5 +17,8 @@
 <resources>
     <!-- Whether there is a silent mode checkbox  -->
     <bool name="has_silent_mode">false</bool>
+
+    <!-- Whether to show navigation bar settings -->
+    <bool name="config_show_navigation_bar_settings">true</bool>
 </resources>
 

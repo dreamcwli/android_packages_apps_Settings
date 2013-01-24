@@ -1862,4 +1862,6 @@
     <string name="keep_performance_settings_title">"保留效能設定"</string>
     <string name="keep_performance_settings_summary">"重新啟動後保留目前的效能設定"</string>
     <string name="charging_light_title">"充電指示燈"</string>
+    <string name="move_navigation_bar_title">移動導航列</string>
+    <string name="move_navigation_bar_summary">橫向使用時移動導航列至側邊</string>
 </resources>

@@ -34,4 +34,7 @@
     <bool name="config_show_regulatory_info">false</bool>
 
     <bool name="config_show_sysbar_setting">false</bool>
+
+    <!-- Whether to show navigation bar settings -->
+    <bool name="config_show_navigation_bar_settings">false</bool>
 </resources>
