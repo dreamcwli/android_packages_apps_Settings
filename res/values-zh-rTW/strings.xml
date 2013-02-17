@@ -1834,7 +1834,7 @@
     <string name="user_picture_title" msgid="7297782792000291692">"相片 ID"</string>
     <string name="cell_broadcast_settings" msgid="8415582011920085222">"區域廣播"</string>
     <string name="cell_broadcast_settings_summary" msgid="3301339398950905913">"選取要顯示的緊急警示類型。"</string>
-    <string name="debug_ui_category">"使用者介面"</string>
+    <string name="user_interface_settings_title">"使用者介面"</string>
     <string name="use_system_bar">"使用系統列"</string>
     <string name="use_system_bar_summary">"使用系統列取代狀態列與導航列"</string>
     <string name="usb_eject">"卸載 USB 儲存裝置"</string>
