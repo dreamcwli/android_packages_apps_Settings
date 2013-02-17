@@ -4437,4 +4437,9 @@
 
     <!-- Display settings screen, charging light check box label -->
     <string name="charging_light_title">Charging light</string>
+
+    <!-- Move navigation bar title [CHAR LIMIT=50] -->
+    <string name="move_navigation_bar_title">Move navigation bar</string>
+    <!-- Move navigation bar summary [CHAR LIMIT=100] -->
+    <string name="move_navigation_bar_summary">Move navigation bar to the side in landscape mode</string>
 </resources>

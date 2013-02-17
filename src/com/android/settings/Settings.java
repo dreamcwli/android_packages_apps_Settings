@@ -39,6 +39,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.INetworkManagementService;
@@ -459,7 +460,9 @@ public class Settings extends PreferenceActivity
                     target.remove(i);
                 }
             } else if (id == R.id.user_interface_settings) {
-                if (!getResources().getBoolean(R.bool.config_show_system_bar_setting)) {
+                Resources resources = getResources();
+                if (!(resources.getBoolean(R.bool.config_show_system_bar_setting)
+                            || resources.getBoolean(R.bool.config_show_navigation_bar_settings))) {
                     target.remove(i);
                 }
             } else if (id == R.id.development_settings) {

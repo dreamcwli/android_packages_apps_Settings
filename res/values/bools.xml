@@ -35,4 +35,7 @@
 
     <!-- Whether to show system bar setting -->
     <bool name="config_show_system_bar_setting">false</bool>
+
+    <!-- Whether to show navigation bar settings -->
+    <bool name="config_show_navigation_bar_settings">false</bool>
 </resources>

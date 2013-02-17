@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<!-- Copyright (C) 2011 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,17 +14,8 @@
      limitations under the License.
 -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-        android:title="@string/development_settings_title">
+<resources>
+    <!-- Whether to show navigation bar settings -->
+    <bool name="config_show_navigation_bar_settings">false</bool>
+</resources>
 
-    <CheckBoxPreference
-        android:key="use_system_bar"
-        android:title="@string/use_system_bar"
-        android:summary="@string/use_system_bar_summary"/>
-
-    <CheckBoxPreference
-        android:key="move_navigation_bar"
-        android:title="@string/move_navigation_bar_title"
-        android:summary="@string/move_navigation_bar_summary"/>
-
-</PreferenceScreen>
